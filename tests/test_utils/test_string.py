@@ -1,4 +1,4 @@
-from utils.string import contains_only
+from babel.utils.string import contains_only
 
 def test_contains_only():
 	"""Test the function contains_only"""
