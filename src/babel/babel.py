@@ -9,6 +9,7 @@ from . import utils
 # CONSTANTS
 URL = "https://libraryofbabel.info"
 GET_PAGE_URL = "/book.cgi"
+SEARCH_TEXT_URL = "/search.cgi"
 
 
 @dataclass
@@ -85,8 +86,43 @@ def get_page(page: Page) -> str:
 
 	return soup.find(id="textblock").get_text()
 
+def find_text(text: str) -> Page:
+	"""Find a page with the exakt text 'text'"""
+	text = text.lower()
+	if not utils.string.contains_only(text, string.ascii_lowercase + ' ,.'):
+		raise InvalidPageTextException("Invalid text. It can only contain lowercase letters, space, period and comma")
+
+	request_url = URL + SEARCH_TEXT_URL
+	form = {
+		'find': text
+	}
+
+	response = requests.post(request_url, data=form)
+	soup = BeautifulSoup(response.text, features="html.parser")
+
+	# Get the first a tag on the page
+	a_tag = soup.find('a')
+
+	# Get text with link information
+	location_info = a_tag['onclick']
+
+	# Split the info
+	raw_hexagon, raw_wall, raw_shelf, raw_volume, raw_page = location_info.split(',')
+
+	# Remove extra characters
+	hexagon = raw_hexagon[9:].strip("'")
+	wall = raw_wall.strip("'")
+	shelf = raw_shelf.strip("'")
+	volume = raw_volume.strip("'")
+	page = raw_page[:-1].strip("'")
+
+	return Page(hexagon, int(wall), int(shelf), int(volume), int(page))
+
 		
 class InvalidPageException(Exception):
+	pass
+
+class InvalidPageTextException(Exception):
 	pass
 
 
