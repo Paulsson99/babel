@@ -1,54 +1,66 @@
 import pytest
 from pathlib import Path
-from babel.babel import Library
+
+from babel.babel import Page, get_page, InvalidPageException
 
 
-def test_valid_hexagon(library):
-	assert library.valid_hexagon("0")
-	assert library.valid_hexagon("abcd")
-	assert library.valid_hexagon("1234abcd")
-	assert not library.valid_hexagon("")
-	assert not library.valid_hexagon("asdgj.dsfoi")
-	assert not library.valid_hexagon("åäö")
+def test_valid_hexagon():
+	assert Page.valid_hexagon("0")
+	assert Page.valid_hexagon("abcd")
+	assert Page.valid_hexagon("1234abcd")
+	assert not Page.valid_hexagon("")
+	assert not Page.valid_hexagon("asdgj.dsfoi")
+	assert not Page.valid_hexagon("åäö")
 
-def test_valid_wall(library):
-	assert library.valid_wall(4)
-	assert library.valid_wall(1)
-	assert not library.valid_wall(5)
-	assert not library.valid_wall(0)
+def test_valid_wall():
+	assert Page.valid_wall(4)
+	assert Page.valid_wall(1)
+	assert not Page.valid_wall(5)
+	assert not Page.valid_wall(0)
 
-def test_valid_shelf(library):
-	assert library.valid_shelf(5)
-	assert library.valid_shelf(1)
-	assert not library.valid_shelf(6)
-	assert not library.valid_shelf(0)
+def test_valid_shelf():
+	assert Page.valid_shelf(5)
+	assert Page.valid_shelf(1)
+	assert not Page.valid_shelf(6)
+	assert not Page.valid_shelf(0)
 
-def test_valid_volume(library):
-	assert library.valid_volume(32)
-	assert library.valid_volume(1)
-	assert not library.valid_volume(33)
-	assert not library.valid_volume(0)
+def test_valid_volume():
+	assert Page.valid_volume(32)
+	assert Page.valid_volume(1)
+	assert not Page.valid_volume(33)
+	assert not Page.valid_volume(0)
 
-def test_valid_page(library):
-	assert library.valid_page(410)
-	assert library.valid_page(1)
-	assert not library.valid_page(411)
-	assert not library.valid_page(0)
+def test_valid_page():
+	assert Page.valid_page(410)
+	assert Page.valid_page(1)
+	assert not Page.valid_page(411)
+	assert not Page.valid_page(0)
 
-def test_get_page_error_handling(library):
+def test_valid_page(valid_page):
+	assert valid_page.valid_location()
+
+def test_invalid_page(invalid_page):
+	assert not invalid_page.valid_location()
+
+def test_page_str():
+	assert str(Page("0", 1, 1, 1, 1)) == "0-w1-s1-v1:1"
+	assert str(Page("0123456789", 10, 20, 30, 40)) == "0123456789-w10-s20-v30:40"
+	assert str(Page("12345678910", 1, 2, 3, 4)) == "12345...78910-w1-s2-v3:4"
+
+def test_get_page_error_handling():
 	"""Test the error handling in the get_page function"""
-	with pytest.raises(ValueError):
-		library.get_page("", 1, 1, 1, 1)
-	with pytest.raises(ValueError):
-		library.get_page("0", 0, 1, 1, 1)
-	with pytest.raises(ValueError):
-		library.get_page("0", 1, 0, 1, 1)
-	with pytest.raises(ValueError):
-		library.get_page("0", 1, 1, 0, 1)
-	with pytest.raises(ValueError):
-		library.get_page("0", 1, 1, 1, 0)
+	with pytest.raises(InvalidPageException):
+		get_page(Page("", 1, 1, 1, 1))
+	with pytest.raises(InvalidPageException):
+		get_page(Page("0", 0, 1, 1, 1))
+	with pytest.raises(InvalidPageException):
+		get_page(Page("0", 1, 0, 1, 1))
+	with pytest.raises(InvalidPageException):
+		get_page(Page("0", 1, 1, 0, 1))
+	with pytest.raises(InvalidPageException):
+		get_page(Page("0", 1, 1, 1, 0))
 
-def test_get_page_no_request(mocker, library):
+def test_get_page_no_request(mocker, valid_page):
 	"""Test the get_page function (no request sent)"""
 
 	# Create mock object
@@ -65,7 +77,7 @@ def test_get_page_no_request(mocker, library):
 	)
 
 	# Test
-	response = library.get_page("0", 1, 1, 1, 1)
+	response = get_page(valid_page)
 
 	assert response.startswith("e,ktdo.baefq ,z unqusiug..mvgxwni.ghyrharszlowrwmk")
 
