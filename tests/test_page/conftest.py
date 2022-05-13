@@ -1,6 +1,6 @@
 import pytest
 
-from babel.babel import Page
+from babel.page import Page
 
 
 @pytest.fixture

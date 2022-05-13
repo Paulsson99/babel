@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from babel.babel import Page, get_page, find_text, InvalidPageException, InvalidPageTextException
+from babel.page import Page, get_page, find_text, InvalidPageException, InvalidPageTextException
 
 
 def test_valid_hexagon():
@@ -78,7 +78,7 @@ def test_find_text_no_request(mocker, test_page):
 	response_mocker.text = test_response
 
 	request_mocker = mocker.patch(
-		'babel.babel.requests.post',
+		'babel.page.requests.post',
 		return_value=response_mocker
 	)
 
@@ -106,7 +106,7 @@ def test_get_page_no_request(mocker, valid_page):
 	response_mocker.text = test_response
 
 	request_mocker = mocker.patch(
-		'babel.babel.requests.post',
+		'babel.page.requests.post',
 		return_value=response_mocker
 	)
 
