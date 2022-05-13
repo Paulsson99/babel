@@ -1,5 +1,5 @@
 import pytest
-from babel.page import Page, InvalidPageException, InvalidPageTextException
+from pybel.page import Page, InvalidPageException, InvalidPageTextException
 
 
 def test_find_text_no_request(mocker_search_response, test_page_from_search):

@@ -1,5 +1,5 @@
 import pytest
-from babel.page import Page
+from pybel.page import Page
 
 
 def test_valid_hexagon():

@@ -17,6 +17,10 @@ py==1.11.0
 pyparsing==3.0.6
     # via packaging
 pytest==6.2.5
+    # via
+    #   -r requirements_dev.in
+    #   pytest-mock
+pytest-mock==3.7.0
     # via -r requirements_dev.in
 toml==0.10.2
     # via pytest

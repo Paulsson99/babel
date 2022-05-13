@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from babel.page import Page
+from pybel.page import Page
 
 
 data_dir = Path(__file__).parent / 'data'
@@ -47,7 +47,7 @@ def mocker_page_response(mocker):
 	response_mocker.text = page_response
 
 	return mocker.patch(
-		'babel.page.requests.post',
+		'pybel.page.requests.post',
 		return_value=response_mocker
 	)
 
@@ -61,6 +61,6 @@ def mocker_search_response(mocker):
 	response_mocker.text = search_response
 
 	return mocker.patch(
-		'babel.page.requests.post',
+		'pybel.page.requests.post',
 		return_value=response_mocker
 	)

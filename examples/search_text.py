@@ -1,4 +1,4 @@
-from babel.page import Page
+from pybel.page import Page
 
 # Find a page with the contents 'Hello'
 page = Page.find("Hello")

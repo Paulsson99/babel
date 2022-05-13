@@ -4,3 +4,17 @@
 #
 #    pip-compile
 #
+beautifulsoup4==4.11.1
+    # via pybel (setup.py)
+certifi==2021.10.8
+    # via requests
+charset-normalizer==2.0.12
+    # via requests
+idna==3.3
+    # via requests
+requests==2.27.1
+    # via pybel (setup.py)
+soupsieve==2.3.2.post1
+    # via beautifulsoup4
+urllib3==1.26.9
+    # via requests

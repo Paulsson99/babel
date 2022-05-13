@@ -1,4 +1,4 @@
-from babel.utils.math import inrange, isint
+from pybel.utils.math import inrange, isint
 
 
 def test_inrange_with_int():

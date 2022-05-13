@@ -1,4 +1,4 @@
-from babel.page import Page
+from pybel.page import Page
 
 # Create a Page object
 page = Page(
