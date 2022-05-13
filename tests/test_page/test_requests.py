@@ -6,7 +6,7 @@ def test_find_text_no_request(mocker_search_response, test_page_from_search):
 	"""Test the find_text function (no request sent)"""
 
 	# Test
-	page = Page.find_text("This is a test")
+	page = Page.find("This is a test")
 	assert page == test_page_from_search
 
 	mocker_search_response.assert_called_once_with(

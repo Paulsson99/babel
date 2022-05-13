@@ -85,7 +85,7 @@ class Page:
 		return clc(**page_dict)
 
 	@classmethod
-	def find_text(clc, text: str) -> P:
+	def find(clc, text: str) -> P:
 		"""Find a page with the exakt text 'text'"""
 		text = text.lower()
 		if not utils.string.contains_only(text, string.ascii_lowercase + ' ,.'):

@@ -18,6 +18,6 @@ def test_get_page_error_handling():
 def test_find_text_error_handling():
 	"""Test the error handling of find_text()"""
 	with pytest.raises(InvalidPageTextException):
-		Page.find_text("123")
+		Page.find("123")
 	with pytest.raises(InvalidPageTextException):
-		Page.find_text("a"*3201)
+		Page.find("a"*3201)
