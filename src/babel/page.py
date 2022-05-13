@@ -34,7 +34,7 @@ class Page:
 
 		# Request the page from the internet
 		request_url = URL + GET_PAGE_URL
-		form = self.to_dict()
+		form = self.to_dict(hexagon_name='hex')
 		response = requests.post(request_url, data=form)
 
 		# Extract the contents of the page
@@ -116,9 +116,9 @@ class Page:
 
 		return clc(hexagon, int(wall), int(shelf), int(volume), int(page))
 
-	def to_dict(self) -> dict:
+	def to_dict(self, hexagon_name='hexagon') -> dict:
 		return {
-			'hex': self.hexagon,
+			hexagon_name: self.hexagon,
 			'wall': self.wall,
 			'shelf': self.shelf,
 			'volume': self.volume,
