@@ -2,6 +2,7 @@ import requests
 import string
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
+from typing import TypeVar
 
 from . import utils
 
@@ -10,6 +11,9 @@ from . import utils
 URL = "https://libraryofbabel.info"
 GET_PAGE_URL = "/book.cgi"
 SEARCH_TEXT_URL = "/search.cgi"
+
+# TYPING
+P = TypeVar('P', bound='Page')
 
 
 @dataclass
@@ -21,7 +25,32 @@ class Page:
 	volume: int
 	page: int
 
-	def valid_location(self):
+	def content(self) -> str:
+		"""
+		Get the contents of the page
+		"""
+		if not self.valid_location():
+			raise InvalidPageException(f"{self.location()} is not a valid page")
+
+		# Request the page from the internet
+		request_url = URL + GET_PAGE_URL
+		form = self.to_dict()
+		response = requests.post(request_url, data=form)
+
+		# Extract the contents of the page
+		soup = BeautifulSoup(response.text, features="html.parser")
+		return soup.find(id="textblock").get_text()
+
+	def location(self) -> str:
+		"""
+		Return a string representing the location of the page
+		This function returns a human readable string.
+		For the exakt location use __repr__()
+		"""
+		hexagon_str = self.hexagon if len(self.hexagon) <= 10 else self.hexagon[:5] + '...' + self.hexagon[-5:]
+		return f"{hexagon_str}-w{self.wall}-s{self.shelf}-v{self.volume}:{self.page}"
+
+	def valid_location(self) -> bool:
 		return (
 			Page.valid_hexagon(self.hexagon) and 
 			Page.valid_wall(self.wall) and
@@ -52,8 +81,40 @@ class Page:
 		return utils.math.isint(page) and utils.math.inrange(page, 1, 410)
 
 	@classmethod
-	def from_dict(clc, page_dict: dict):
-		return clc(*page_dict)
+	def from_dict(clc, page_dict: dict) -> P:
+		return clc(**page_dict)
+
+	@classmethod
+	def find_text(clc, text: str) -> P:
+		"""Find a page with the exakt text 'text'"""
+		text = text.lower()
+		if not utils.string.contains_only(text, string.ascii_lowercase + ' ,.'):
+			raise InvalidPageTextException("Invalid text. It can only contain lowercase letters, space, period and comma")
+		if len(text) > 3200:
+			raise InvalidPageTextException("Invalid text. Text lenght can´t exceed 3200")
+
+		# Request the search from the internet
+		request_url = URL + SEARCH_TEXT_URL
+		form = {
+			'find': text
+		}
+		response = requests.post(request_url, data=form)
+
+		# Extract the page location from the first a-tag
+		soup = BeautifulSoup(response.text, features="html.parser")
+		a_tag = soup.find('a')
+		location_info = a_tag['onclick']
+
+		raw_hexagon, raw_wall, raw_shelf, raw_volume, raw_page = location_info.split(',')
+
+		# Remove extra characters
+		hexagon = raw_hexagon[9:].strip("'")
+		wall = raw_wall.strip("'")
+		shelf = raw_shelf.strip("'")
+		volume = raw_volume.strip("'")
+		page = raw_page[:-1].strip("'")
+
+		return clc(hexagon, int(wall), int(shelf), int(volume), int(page))
 
 	def to_dict(self) -> dict:
 		return {
@@ -64,65 +125,16 @@ class Page:
 			'page': self.page
 		}
 
-	def __str__(self):
-		hexagon_str = self.hexagon if len(self.hexagon) <= 10 else self.hexagon[:5] + '...' + self.hexagon[-5:]
-		return f"{hexagon_str}-w{self.wall}-s{self.shelf}-v{self.volume}:{self.page}"
+	def __repr__(self) -> str:
+		return f"{self.hexagon}-w{self.wall}-s{self.shelf}-v{self.volume}:{self.page}"
 
+	def __str__(self) -> str:
+		return self.content()
 
-def get_page(page: Page) -> str:
-	"""
-	Get a page and return the contents of the page
-	"""
-
-	if not page.valid_location():
-		raise InvalidPageException(f"{page} is not a valid page")
-
-	request_url = URL + GET_PAGE_URL
-	form = page.to_dict()
-
-	response = requests.post(request_url, data=form)
-
-	soup = BeautifulSoup(response.text, features="html.parser")
-
-	return soup.find(id="textblock").get_text()
-
-def find_text(text: str) -> Page:
-	"""Find a page with the exakt text 'text'"""
-	text = text.lower()
-	if not utils.string.contains_only(text, string.ascii_lowercase + ' ,.'):
-		raise InvalidPageTextException("Invalid text. It can only contain lowercase letters, space, period and comma")
-	if len(text) > 3200:
-		raise InvalidPageTextException("Invalid text. Text lenght can´t exceed 3200")
-
-	request_url = URL + SEARCH_TEXT_URL
-	form = {
-		'find': text
-	}
-
-	response = requests.post(request_url, data=form)
-	soup = BeautifulSoup(response.text, features="html.parser")
-
-	# Get the first a tag on the page
-	a_tag = soup.find('a')
-
-	# Get text with link information
-	location_info = a_tag['onclick']
-
-	# Split the info
-	raw_hexagon, raw_wall, raw_shelf, raw_volume, raw_page = location_info.split(',')
-
-	# Remove extra characters
-	hexagon = raw_hexagon[9:].strip("'")
-	wall = raw_wall.strip("'")
-	shelf = raw_shelf.strip("'")
-	volume = raw_volume.strip("'")
-	page = raw_page[:-1].strip("'")
-
-	return Page(hexagon, int(wall), int(shelf), int(volume), int(page))
-
-		
+	
 class InvalidPageException(Exception):
 	pass
+
 
 class InvalidPageTextException(Exception):
 	pass

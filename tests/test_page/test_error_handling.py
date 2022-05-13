@@ -1,23 +1,23 @@
 import pytest
-from babel.page import Page, get_page, find_text, InvalidPageException, InvalidPageTextException
+from babel.page import Page, InvalidPageException, InvalidPageTextException
 
 
 def test_get_page_error_handling():
 	"""Test the error handling in the get_page function"""
 	with pytest.raises(InvalidPageException):
-		get_page(Page("", 1, 1, 1, 1))
+		Page("", 1, 1, 1, 1).content()
 	with pytest.raises(InvalidPageException):
-		get_page(Page("0", 0, 1, 1, 1))
+		Page("0", 0, 1, 1, 1).content()
 	with pytest.raises(InvalidPageException):
-		get_page(Page("0", 1, 0, 1, 1))
+		Page("0", 1, 0, 1, 1).content()
 	with pytest.raises(InvalidPageException):
-		get_page(Page("0", 1, 1, 0, 1))
+		Page("0", 1, 1, 0, 1).content()
 	with pytest.raises(InvalidPageException):
-		get_page(Page("0", 1, 1, 1, 0))
+		Page("0", 1, 1, 1, 0).content()
 
 def test_find_text_error_handling():
 	"""Test the error handling of find_text()"""
 	with pytest.raises(InvalidPageTextException):
-		find_text("123")
+		Page.find_text("123")
 	with pytest.raises(InvalidPageTextException):
-		find_text("a"*3201)
+		Page.find_text("a"*3201)
