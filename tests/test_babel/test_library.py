@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from babel.babel import Page, get_page, InvalidPageException
+from babel.babel import Page, get_page, find_text, InvalidPageException, InvalidPageTextException
 
 
 def test_valid_hexagon():
@@ -60,6 +60,40 @@ def test_get_page_error_handling():
 	with pytest.raises(InvalidPageException):
 		get_page(Page("0", 1, 1, 1, 0))
 
+def test_find_text_error_handling():
+	"""Test the error handling of find_text()"""
+	with pytest.raises(InvalidPageTextException):
+		find_text("123")
+	with pytest.raises(InvalidPageTextException):
+		find_text("a"*3201)
+
+def test_find_text_no_request(mocker, test_page):
+	"""Test the find_text function (no request sent)"""
+	# Create mock object
+	this_dir = Path(__file__).parent
+	with open(this_dir / 'test_response_search.html', 'r') as f:
+		test_response = f.read()
+
+	response_mocker = mocker.Mock()
+	response_mocker.text = test_response
+
+	request_mocker = mocker.patch(
+		'babel.babel.requests.post',
+		return_value=response_mocker
+	)
+
+	# Test
+	page = find_text("This is a test")
+	assert page == test_page
+
+	request_mocker.assert_called_once_with(
+		'https://libraryofbabel.info/search.cgi',
+		data={
+			'find': "this is a test"
+		}
+	)
+
+
 def test_get_page_no_request(mocker, valid_page):
 	"""Test the get_page function (no request sent)"""
 
@@ -91,8 +125,3 @@ def test_get_page_no_request(mocker, valid_page):
 			'page': 1
 		}
 	)
-
-
-
-
-

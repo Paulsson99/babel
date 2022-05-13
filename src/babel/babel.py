@@ -91,6 +91,8 @@ def find_text(text: str) -> Page:
 	text = text.lower()
 	if not utils.string.contains_only(text, string.ascii_lowercase + ' ,.'):
 		raise InvalidPageTextException("Invalid text. It can only contain lowercase letters, space, period and comma")
+	if len(text) > 3200:
+		raise InvalidPageTextException("Invalid text. Text lenght can´t exceed 3200")
 
 	request_url = URL + SEARCH_TEXT_URL
 	form = {
