@@ -1,11 +1,36 @@
 import pytest
 from pathlib import Path
+from bs4 import BeautifulSoup
 
 from pybel.page import Page
 
 
 data_dir = Path(__file__).parent / 'data'
 
+
+@pytest.fixture
+def page_contents_raw():
+	"""Return soup of page"""
+	with open(data_dir / 'page.html', 'r') as f:
+		raw_html = f.read()
+	return raw_html
+
+@pytest.fixture
+def page_contents(page_contents_raw):
+	"""Return soup of page"""
+	return BeautifulSoup(page_contents_raw, 'html.parser')
+
+@pytest.fixture
+def search_contents_raw():
+	"""Return soup search page"""
+	with open(data_dir / 'search.html', 'r') as f:
+		raw_html = f.read()
+	return raw_html
+
+@pytest.fixture
+def search_contents(search_contents_raw):
+	"""Return soup search page"""
+	return BeautifulSoup(search_contents_raw, 'html.parser')
 
 @pytest.fixture
 def valid_page():
@@ -38,13 +63,10 @@ def test_page_from_search():
 	)
 
 @pytest.fixture
-def mocker_page_response(mocker):
+def mocker_page_response(mocker, page_contents_raw):
 	"""Mock a page response"""
-	with open(data_dir / 'page.html', 'r') as f:
-		page_response = f.read()
-
 	response_mocker = mocker.Mock()
-	response_mocker.text = page_response
+	response_mocker.text = page_contents_raw
 
 	return mocker.patch(
 		'pybel.page.requests.post',
@@ -52,13 +74,10 @@ def mocker_page_response(mocker):
 	)
 
 @pytest.fixture
-def mocker_search_response(mocker):
+def mocker_search_response(mocker, search_contents_raw):
 	"""Mock a search response"""
-	with open(data_dir / 'search.html', 'r') as f:
-		search_response = f.read()
-
 	response_mocker = mocker.Mock()
-	response_mocker.text = search_response
+	response_mocker.text = search_contents_raw
 
 	return mocker.patch(
 		'pybel.page.requests.post',
