@@ -1,4 +1,5 @@
 import pytest
+from pybel import utils
 from pybel.page import Page, InvalidPageException, InvalidPageTextException
 
 
@@ -12,7 +13,15 @@ def test_find_text_no_request(mocker_search_response, test_page_from_search):
 	mocker_search_response.assert_called_once_with(
 		'https://libraryofbabel.info/search.cgi',
 		data={
-			'find': "this is a test"
+			'find': utils.string.left_pad(
+				utils.string.right_pad(
+					"this is a test",  
+					padding=' ', 
+					pad_size=3200 - len("this is a test")
+				),
+				padding=' ',
+				pad_size=0
+			)
 		}
 	)
 

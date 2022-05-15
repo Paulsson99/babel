@@ -1,7 +1,7 @@
 import sys
 from argparse import ArgumentParser
 
-from .page import Page
+from .page import Page, CHAR_SET_TEXT
 
 
 def get_page(args) -> Page:
@@ -14,7 +14,11 @@ def get_page(args) -> Page:
 	)
 
 def find_page(args) -> Page:
-	return Page.find(' '.join(args.text))
+	return Page.find(
+		' '.join(args.text), 
+		location=args.location, 
+		padding=None if args.padding.lower() == 'random' else args.padding.lower()
+	)
 
 
 parser = ArgumentParser(prog='pybel', description="API for interacting with the library of Babel")
@@ -46,6 +50,16 @@ find_parser = subparsers.add_parser(
 	parents=[save_parser]
 )
 find_parser.add_argument('text', type=str, nargs='+', help='text to search for')
+find_parser.add_argument('--location', '-l', 
+	type=int,
+	default=0,
+	help='Location of the text on the page. Defaults to 0'
+)
+find_parser.add_argument('--padding', '-p', 
+	type=str,
+	default=' ',
+	help=f"Padding of the text. Can be one of the following '{CHAR_SET_TEXT}' or random. Defaults to ' '"
+)
 find_parser.set_defaults(func=find_page)
 
 # Print help if no arguments are given
@@ -56,11 +70,9 @@ if len(sys.argv) == 1:
 # Parse the arguments and call the correct function
 args = parser.parse_args()
 page = args.func(args)
-print(args)
 
 # Handle other args
 if args.save:
-	print("test")
 	page.save(args.save)
 else:
 	print(page)

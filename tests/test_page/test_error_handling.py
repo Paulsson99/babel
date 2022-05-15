@@ -21,3 +21,9 @@ def test_find_text_error_handling():
 		Page.find("123")
 	with pytest.raises(InvalidPageTextException):
 		Page.find("a"*3201)
+	with pytest.raises(InvalidPageTextException):
+		Page.find('123', location=3198)
+	with pytest.raises(InvalidPageTextException):
+		Page.find('123', padding='ab')
+	with pytest.raises(InvalidPageTextException):
+		Page.find('123', padding='?')

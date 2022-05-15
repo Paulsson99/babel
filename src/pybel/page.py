@@ -13,6 +13,11 @@ URL = "https://libraryofbabel.info"
 GET_PAGE_URL = "/book.cgi"
 SEARCH_TEXT_URL = "/search.cgi"
 
+CHAR_SET_TEXT = string.ascii_lowercase + ' ,.'
+CHAR_SET_HEXAGON = string.ascii_lowercase + string.digits
+
+MAX_TEXT_LENGTH = 3200
+
 # TYPING
 P = TypeVar('P', bound='Page')
 
@@ -63,7 +68,7 @@ class Page:
 	@staticmethod
 	def valid_hexagon(hexagon: str) -> bool:
 		"""Only abc...xyz and 0-9 are allowed and it should not be empty"""
-		return hexagon and utils.string.contains_only(hexagon, string.ascii_lowercase + string.digits)
+		return hexagon and utils.string.contains_only(hexagon, CHAR_SET_HEXAGON)
 
 	@staticmethod
 	def valid_wall(wall: int) -> bool:
@@ -86,18 +91,20 @@ class Page:
 		return clc(**page_dict)
 
 	@classmethod
-	def find(clc, text: str) -> P:
+	def find(clc, text: str, location: int=0, padding=' ') -> P:
 		"""Find a page with the exakt text 'text'"""
 		text = text.lower()
-		if not utils.string.contains_only(text, string.ascii_lowercase + ' ,.'):
+		if not utils.string.contains_only(text, CHAR_SET_TEXT):
 			raise InvalidPageTextException("Invalid text. It can only contain lowercase letters, space, period and comma")
-		if len(text) > 3200:
-			raise InvalidPageTextException("Invalid text. Text lenght can´t exceed 3200")
+		if len(text) + location > MAX_TEXT_LENGTH:
+			raise InvalidPageTextException(f"Invalid text. Text lenght can´t exceed {MAX_TEXT_LENGTH}")
+		if not padding is None and (len(padding) > 1 or not utils.string.contains_only(padding, CHAR_SET_TEXT)):
+			raise InvalidPageTextException("Invalid padding. Can only be a lowercase character, space, period or comma")
 
 		# Request the search from the internet
 		request_url = URL + SEARCH_TEXT_URL
 		form = {
-			'find': text
+			'find': clc._prepere_search_text(text, location, padding)
 		}
 		response = requests.post(request_url, data=form)
 
@@ -116,6 +123,24 @@ class Page:
 		page = raw_page[:-1].strip("'")
 
 		return clc(hexagon, int(wall), int(shelf), int(volume), int(page))
+
+	@staticmethod
+	def _prepere_search_text(text: str, location: int, padding: str):
+		"""Pad the search string correctly"""
+		if padding is None:
+			padding_left = utils.string.random_string(length=location, char_set=CHAR_SET_TEXT)
+			padding_right = utils.string.random_string(length=MAX_TEXT_LENGTH - location - len(text), char_set=CHAR_SET_TEXT)
+			return padding_left + text + padding_right
+		else:
+			return utils.string.left_pad(
+				utils.string.right_pad(
+					text,
+					padding=padding, 
+					pad_size=MAX_TEXT_LENGTH - location - len(text)
+				),
+				padding=padding,
+				pad_size=location
+			)
 
 	def to_dict(self, hexagon_name='hexagon') -> dict:
 		return {
