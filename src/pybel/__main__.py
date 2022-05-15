@@ -64,8 +64,8 @@ find_parser.set_defaults(func=find_page)
 
 # Print help if no arguments are given
 if len(sys.argv) == 1:
-    parser.print_help(sys.stderr)
-    sys.exit(1)
+	parser.print_help(sys.stderr)
+	sys.exit(1)
 
 # Parse the arguments and call the correct function
 args = parser.parse_args()
