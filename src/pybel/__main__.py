@@ -14,17 +14,22 @@ def get_page(args) -> Page:
 	)
 
 def find_page(args) -> Page:
-	return Page.find(args.text)
+	return Page.find(' '.join(args.text))
 
 
 parser = ArgumentParser(prog='pybel', description="API for interacting with the library of Babel")
+
+save_parser = ArgumentParser(add_help=False)
+save_parser.add_argument('--save', '-s', type=str, help='Location to save the page at')
+
 subparsers = parser.add_subparsers(help='subcommands')
 
 # Get page parser
 get_parser = subparsers.add_parser(
 	'get', 
 	help='Get contents of a page in the library', 
-	description='Get contents of a page in the library'
+	description='Get contents of a page in the library',
+	parents=[save_parser]
 )
 get_parser.add_argument('hexagon', type=str, help='Hexagon in the library')
 get_parser.add_argument('wall', type=int, help='Wall in the hexagon')
@@ -37,9 +42,10 @@ get_parser.set_defaults(func=get_page)
 find_parser = subparsers.add_parser(
 	'find',
 	help='Find a page with the specified text',
-	description='Find a page with the specified text'
+	description='Find a page with the specified text',
+	parents=[save_parser]
 )
-find_parser.add_argument('text', type=str, help='text to search for')
+find_parser.add_argument('text', type=str, nargs='+', help='text to search for')
 find_parser.set_defaults(func=find_page)
 
 # Print help if no arguments are given
@@ -50,6 +56,12 @@ if len(sys.argv) == 1:
 # Parse the arguments and call the correct function
 args = parser.parse_args()
 page = args.func(args)
+print(args)
 
-print(page)
+# Handle other args
+if args.save:
+	print("test")
+	page.save(args.save)
+else:
+	print(page)
 

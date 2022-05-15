@@ -3,6 +3,7 @@ import string
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from typing import TypeVar
+from pathlib import Path
 
 from . import utils
 
@@ -48,7 +49,7 @@ class Page:
 		For the exakt location use __repr__()
 		"""
 		hexagon_str = self.hexagon if len(self.hexagon) <= 10 else self.hexagon[:5] + '...' + self.hexagon[-5:]
-		return f"{hexagon_str}-w{self.wall}-s{self.shelf}-v{self.volume}:{self.page}"
+		return f"{hexagon_str}-w{self.wall}-s{self.shelf}-v{self.volume}-p{self.page}"
 
 	def valid_location(self) -> bool:
 		return (
@@ -125,8 +126,15 @@ class Page:
 			'page': self.page
 		}
 
+	def save(self, path):
+		"""Save the book page"""
+		save_path = Path(path) / (self.location() + '.txt')
+		with open(save_path, 'w') as f:
+			f.write(repr(self) + '\n')
+			f.write(str(self))
+
 	def __repr__(self) -> str:
-		return f"{self.hexagon}-w{self.wall}-s{self.shelf}-v{self.volume}:{self.page}"
+		return f"{self.hexagon}-w{self.wall}-s{self.shelf}-v{self.volume}-p{self.page}"
 
 	def __str__(self) -> str:
 		return self.content()
