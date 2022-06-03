@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import TypeVar, Optional
 from pathlib import Path
 
-from . import utils
+from pybel import utils
 
 # CONSTANTS
 URL = "https://libraryofbabel.info"

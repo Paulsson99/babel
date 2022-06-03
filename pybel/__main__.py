@@ -1,7 +1,7 @@
 import sys
 from argparse import ArgumentParser
 
-from .page import Page, CHAR_SET_TEXT
+from pybel.page import Page, CHAR_SET_TEXT
 
 
 def get_page(args) -> None:
