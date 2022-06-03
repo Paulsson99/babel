@@ -5,7 +5,7 @@ from .page import Page, CHAR_SET_TEXT
 
 
 def get_page(args) -> None:
-    page =  Page(
+    page = Page(
         hexagon=args.hexagon,
         wall=args.wall,
         shelf=args.shelf,

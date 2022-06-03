@@ -49,7 +49,7 @@ class Page:
     def location(self) -> str:
         """
         Return a string representing the location of the page
-        This function returns a human readable string.
+        This function returns a human-readable string.
         For the exact location use __repr__()
         """
         hexagon_str = self.hexagon if len(self.hexagon) <= 10 else self.hexagon[:5] + '...' + self.hexagon[-5:]
@@ -66,7 +66,7 @@ class Page:
 
     @staticmethod
     def valid_hexagon(hexagon: str) -> bool:
-        """Only abc...xyz and 0-9 are allowed and it should not be empty"""
+        """Only abc...xyz and 0-9 are allowed, and it should not be empty"""
         return hexagon and utils.string.contains_only(hexagon, CHAR_SET_HEXAGON)
 
     @staticmethod
@@ -91,7 +91,20 @@ class Page:
 
     @classmethod
     def find(cls, text: str, location: int = 0, padding: Optional[str] = ' ') -> P:
-        """Find a page with the exact text 'text'"""
+        """
+        Find a page with the exact text 'text'
+
+        Args:
+            text: Text to search for
+            location: Location of the text
+            padding: padding around the text. 'random' gives random padding
+
+        Returns:
+            Page object
+
+        Raises:
+            InvalidPageTextException
+        """
         text = text.lower()
         if not utils.string.contains_only(text, CHAR_SET_TEXT):
             raise InvalidPageTextException(
@@ -126,7 +139,17 @@ class Page:
 
     @staticmethod
     def _prepare_search_text(text: str, location: int, padding: Optional[str]) -> str:
-        """Pad the search string correctly"""
+        """
+        Pad the search string correctly
+
+        Args:
+            text: Text to search for
+            location: Location of the text
+            padding: padding around the text. 'random' gives random padding
+
+        Returns:
+            padded search string
+        """
         if padding is None:
             padding_left = utils.string.random_string(length=location, char_set=CHAR_SET_TEXT)
             padding_right = utils.string.random_string(length=MAX_TEXT_LENGTH - location - len(text),
