@@ -4,22 +4,34 @@ from argparse import ArgumentParser
 from .page import Page, CHAR_SET_TEXT
 
 
-def get_page(args) -> Page:
-    return Page(
+def get_page(args) -> None:
+    page =  Page(
         hexagon=args.hexagon,
         wall=args.wall,
         shelf=args.shelf,
         volume=args.volume,
         page=args.page
     )
+    # Handle other args
+    if args.save:
+        page.save(args.save)
+    else:
+        print(page)
 
 
-def find_page(args) -> Page:
-    return Page.find(
+def find_page(args) -> None:
+    page = Page.find(
         ' '.join(args.text),
         location=args.location,
         padding=None if args.padding.lower() == 'random' else args.padding.lower()
     )
+    # Handle other args
+    if args.save:
+        page.save(args.save)
+    else:
+        print(page.location())
+        if args.full:
+            print(page)
 
 
 parser = ArgumentParser(prog='pybel', description="API for interacting with the library of Babel")
@@ -59,9 +71,11 @@ find_parser.add_argument('--location', '-l',
 find_parser.add_argument('--padding', '-p',
                          type=str,
                          default=' ',
+                         choices=list(CHAR_SET_TEXT) + ['random'],
                          help=f"Padding of the text. Can be one of the following '{CHAR_SET_TEXT}' or random. "
                               f"Defaults to ' ' "
                          )
+find_parser.add_argument('--full', '-f', action='store_true', help='Show page')
 find_parser.set_defaults(func=find_page)
 
 # Print help if no arguments are given
@@ -71,10 +85,4 @@ if len(sys.argv) == 1:
 
 # Parse the arguments and call the correct function
 args = parser.parse_args()
-page = args.func(args)
-
-# Handle other args
-if args.save:
-    page.save(args.save)
-else:
-    print(page)
+args.func(args)

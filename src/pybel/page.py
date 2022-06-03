@@ -2,7 +2,7 @@ import requests
 import string
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-from typing import TypeVar
+from typing import TypeVar, Optional
 from pathlib import Path
 
 from . import utils
@@ -90,15 +90,15 @@ class Page:
         return cls(**page_dict)
 
     @classmethod
-    def find(cls, text: str, location: int = 0, padding: str = ' ') -> P:
+    def find(cls, text: str, location: int = 0, padding: Optional[str] = ' ') -> P:
         """Find a page with the exact text 'text'"""
         text = text.lower()
         if not utils.string.contains_only(text, CHAR_SET_TEXT):
             raise InvalidPageTextException(
                 "Invalid text. It can only contain lowercase letters, space, period and comma")
         if len(text) + location > MAX_TEXT_LENGTH:
-            raise InvalidPageTextException(f"Invalid text. Text lenght can´t exceed {MAX_TEXT_LENGTH}")
-        if len(padding) > 1 or not utils.string.contains_only(padding, CHAR_SET_TEXT):
+            raise InvalidPageTextException(f"Invalid text. Text length can´t exceed {MAX_TEXT_LENGTH}")
+        if padding is not None and (len(padding) > 1 or not utils.string.contains_only(padding, CHAR_SET_TEXT)):
             raise InvalidPageTextException("Invalid padding. Can only be a lowercase character, space, period or comma")
 
         # Request the search from the internet
@@ -125,7 +125,7 @@ class Page:
         return cls(hexagon, int(wall), int(shelf), int(volume), int(page))
 
     @staticmethod
-    def _prepare_search_text(text: str, location: int, padding: str):
+    def _prepare_search_text(text: str, location: int, padding: Optional[str]) -> str:
         """Pad the search string correctly"""
         if padding is None:
             padding_left = utils.string.random_string(length=location, char_set=CHAR_SET_TEXT)

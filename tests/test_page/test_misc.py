@@ -16,5 +16,5 @@ def test_page_repr():
 def test_prepere_search_text():
     assert Page._prepare_search_text('abc', location=10, padding='a') == 'a' * 10 + 'abc' + 'a' * 3187
     assert Page._prepare_search_text('abc', location=0, padding=' ') == 'abc' + ' ' * 3197
-    assert Page._prepare_search_text('abc', location=10, padding=' ')[10:13] == 'abc'
-    assert len(Page._prepare_search_text('abc', location=10, padding=' ')) == 3200
+    assert Page._prepare_search_text('abc', location=10, padding=None)[10:13] == 'abc'
+    assert len(Page._prepare_search_text('abc', location=10, padding=None)) == 3200
